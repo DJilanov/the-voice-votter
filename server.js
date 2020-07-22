@@ -17,8 +17,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // listen to port
-app.listen(3000);
-console.log('You are listening to port 3000');
+app.listen(process.env.PORT || 3000);
+console.log(`You are listening to port ${process.env.PORT || 3000}`);
 
 app.post('/vote', (req, res) => {
     amount = req.body.amount;
