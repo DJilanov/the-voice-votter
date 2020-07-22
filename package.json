@@ -12,7 +12,6 @@
   "dependencies": {
     "free-proxy": "latest",
     "express": "latest",
-    "body-parser": "latest",
-    "querystring": "latest"
+    "body-parser": "latest"
   }
 }
