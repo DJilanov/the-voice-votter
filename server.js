@@ -21,8 +21,8 @@ app.listen(process.env.PORT || 3000);
 console.log(`You are listening to port ${process.env.PORT || 3000}`);
 
 app.post('/vote', (req, res) => {
-    amount = req.body.amount;
-    value = +req.body.value;
+    amount = +req.body.amount;
+    value = req.body.value;
     requestController();
     console.log('Sending spam for: ', req.body.value);
     res.end('Accepted');
