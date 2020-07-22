@@ -9,7 +9,7 @@ const qs = require('querystring');
 var app = express();
 
 let amount = 0;
-let counter = 0;
+let value = '';
 
 var app = express();
 app.use(bodyParser.json());
@@ -20,19 +20,21 @@ app.listen(3000);
 console.log('You are listening to port 3000');
 
 app.post('/vote', (req, res) => {
-    requestController(req.body.value);
+    amount = req.body.amount;
+    value = req.body.value;
+    requestController();
     console.log('Sending spam for: ', req.body.value);
     res.end('Accepted');
 });
 
-const requestController = async (value) => {
-    let response = await sendRequest(value);
-    if(counter < amount) {
-        requestController(res);
+const requestController = async () => {
+    for(let counter = 0; counter < amount; counter++) {
+        let response = await sendRequest();
+        console.log('Send: ', counter);
     }
 }
 
-const sendRequest = async (value) => {
+const sendRequest = async () => {
     let data = {};
     repeat = true;
     while(repeat) {
@@ -59,8 +61,9 @@ const sendRequest = async (value) => {
         path: 'thevoice.bg:443', // some destination, add 443 port for https!
       }).on('connect', (res, socket) => {
         if (res.statusCode === 200) { // connected to proxy server
+            console.log('VALUE2: ', value);
             let dataEncoded = qs.stringify({
-                value
+                value: value
             });
             let request = https.request({
                 host: 'www.thevoice.bg',
@@ -81,18 +84,14 @@ const sendRequest = async (value) => {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             }, (res) => {
-                console.log('------------Connected');
-                let chunks = []
-                debugger;
+                console.log('------------Connected'); 
+                res.setEncoding('utf8');
                 res.on('data', function (chunk) {
-                    debugger;
                     console.log('BODY: ' + chunk);
-                    chunks.push(chunk);
+                    if(chunk !== 'ok') {
+                        sendRequest();
+                    }
                 });
-                res.on('end', () => {
-                    debugger;
-                    console.log('------------DONE', Buffer.concat(chunks).toString('utf8'))
-                })
             });
         
             request.write(dataEncoded);
@@ -101,12 +100,14 @@ const sendRequest = async (value) => {
                 sendRequest();
             }).end();
         }
-      }).on('error', (err) => {
-        console.error('Outer error: ', err)
-        sendRequest();
       }).end();
 
     proxyRequest.on('socket', (s) => { s.setTimeout(5000, () => { s.destroy(); })});
+    proxyRequest.on('error', (err) => {
+        console.error('Outer error: ', err)
+        sendRequest();
+    });
+    proxyRequest.end();
 
     console.log('data: ', data);
 }
