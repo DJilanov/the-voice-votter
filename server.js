@@ -1,28 +1,38 @@
 const ProxyList = require('free-proxy');
 const proxyList = new ProxyList();
+const express = require('express');
 const http = require('http');
-const HttpsProxyAgent = require('https-proxy-agent');
-var https = require('https');
-const url = require('url');
-const tls = require("tls");
-tls.DEFAULT_ECDH_CURVE = "auto"
+const https = require('https');
+const bodyParser = require('body-parser');
+const qs = require('querystring');
 
-http.createServer(function (req, res) {
-    res.writeHead(200, {
-        'Content-Type': 'text/plain; charset=UTF-8'
-    });
-    var purl = url.parse(req.url,true);
-    if(purl.pathname=='/vote') {
-        sendRequest(res);
-    } else {
+var app = express();
 
+let amount = 0;
+let counter = 0;
+
+var app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// listen to port
+app.listen(3000);
+console.log('You are listening to port 3000');
+
+app.post('/vote', (req, res) => {
+    requestController(req.body.value);
+    console.log('Sending spam for: ', req.body.value);
+    res.end('Accepted');
+});
+
+const requestController = async (value) => {
+    let response = await sendRequest(value);
+    if(counter < amount) {
+        requestController(res);
     }
-  
-}).listen(1337);
+}
 
-console.log('Started at port 1337');
-
-const sendRequest = async (res) => {
+const sendRequest = async (value) => {
     let data = {};
     repeat = true;
     while(repeat) {
@@ -38,25 +48,65 @@ const sendRequest = async (res) => {
         sendRequest();
         return;
     }
-    console.log(`connected to: http://${data.ip}:${data.port}`)
-    let options = {
-        url: 'https://thevoice.bg/charts/vote/',
-        method: 'POST',
-        proxy: new HttpsProxyAgent(data.url),
-        // headers: {
-        //     'Content-Type': 'application/x-www-form-urlencoded',
-        //     'Content-Length': Buffer.byteLength(post_data)
-        // }
-    };
-    
-    let request = http.request(options, (res) => {
-        console.log('"response" event!', res.headers);
-        res.pipe(process.stdout);
-    });
-    request.on('error', function(err) {
-        console.log('Err: ', err);
+
+    console.log('Creating request');
+
+    let proxyRequest = http.request({
+        host: data.ip, // IP address of proxy server
+        port: data.port, // port of proxy server
+        method: 'CONNECT',
+        timeout: 5000,
+        path: 'thevoice.bg:443', // some destination, add 443 port for https!
+      }).on('connect', (res, socket) => {
+        if (res.statusCode === 200) { // connected to proxy server
+            let dataEncoded = qs.stringify({
+                value
+            });
+            let request = https.request({
+                host: 'www.thevoice.bg',
+                agent: false,      // cannot use a default agent
+                path: '/charts/vote',  // specify path to get from server
+                method: 'POST',
+                timeout: 5000,
+                socket: socket,
+                port: 443,
+                headers: {
+                    'Content-Disposition': 'form-data; boundary=boundary',
+                    'Content-Length': Buffer.byteLength(dataEncoded),
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'Host': 'thevoice.bg',
+                    'Origin': 'https://thevoice.bg',
+                    'Referer': 'https://thevoice.bg/charts/bg-voice-top10-c500.html',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }, (res) => {
+                console.log('------------Connected');
+                let chunks = []
+                debugger;
+                res.on('data', function (chunk) {
+                    debugger;
+                    console.log('BODY: ' + chunk);
+                    chunks.push(chunk);
+                });
+                res.on('end', () => {
+                    debugger;
+                    console.log('------------DONE', Buffer.concat(chunks).toString('utf8'))
+                })
+            });
+        
+            request.write(dataEncoded);
+            request.on('error', (err) => {
+                console.error('Inner error: ', err);
+                sendRequest();
+            }).end();
+        }
+      }).on('error', (err) => {
+        console.error('Outer error: ', err)
         sendRequest();
-    });
+      }).end();
+
+    proxyRequest.on('socket', (s) => { s.setTimeout(5000, () => { s.destroy(); })});
 
     console.log('data: ', data);
 }

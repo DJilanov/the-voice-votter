@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "free-proxy": "latest",
-    "https-proxy-agent": "latest"
+    "express": "latest",
+    "body-parser": "latest",
+    "querystring": "latest"
   }
 }
