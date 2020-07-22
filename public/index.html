@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                background:#ededed;
+            }
+            .panel {
+                display:block;
+                height:278px;
+            }
+
+            .freeBird {
+                margin-top:-100px;
+            }
+
+            .small-text {
+                font-size:12px;
+            }
+        </style>
+        
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.1.1/css/mdb.min.css">
+    <title>W3.CSS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body class="w3-theme-l4">
+
+        <div class="panel deep-purple"></div>
+        <main class="freeBird">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-7 m-x-auto pull-xs-none">
+                        <div class="jumbotron">
+                            <h2 class="h2-responsive"><strong>The voice votter</strong></h2>
+                            <!-- <hr class="m-y-2"> -->
+
+                            <!--Naked Form-->
+                            <div class="card-block">
+
+                                <!--Body-->
+                                <form action="#">
+                                    <!-- Basic textbox -->
+                                    <div class="md-form">
+                                        <input type="text" id="value" class="form-control" value="FaRJk7faps0kyUKlM6LuAWO9Wy_slxsXDaQbqv.qMNc">
+                                        <label for="value" class="">Video Key</label>
+                                    </div>
+                                    <div class="md-form">
+                                        <input type="text" id="amount" class="form-control" value="500">
+                                        <label for="amount" class="">Amount of votes</label>
+                                    </div>
+                                    <!-- /.Basic textbox -->
+
+                                    <div class="text-xs-left">
+                                        <button class="btn btn-primary" onclick="onSubmit()">Submit</button>
+                                    </div>
+                                </form>
+
+                            </div>
+                            <!--Naked Form-->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.3/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.1.1/js/mdb.min.js"></script>
+        <script>
+            function onSubmit() {
+                fetch('', {
+                    method: 'post',
+                    headers: {
+                        "Content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        value: document.getElementById('value').value,
+                        amount: document.getElementById('amount').value,
+                    })
+                })
+                .then(function (data) {
+                    alert('Done');
+                })
+                .catch(function (error) {
+                    alert('Error: ', error);
+                });
+            }
+        </script>
+    </body>
+</html>

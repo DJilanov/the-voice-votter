@@ -12,6 +12,7 @@ let amount = 0;
 let value = '';
 
 var app = express();
+app.use(express.static('public'))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -21,7 +22,7 @@ console.log('You are listening to port 3000');
 
 app.post('/vote', (req, res) => {
     amount = req.body.amount;
-    value = req.body.value;
+    value = +req.body.value;
     requestController();
     console.log('Sending spam for: ', req.body.value);
     res.end('Accepted');
