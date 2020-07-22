@@ -89,6 +89,9 @@ const sendRequest = async () => {
                 res.setEncoding('utf8');
                 res.on('data', function (chunk) {
                     console.log('BODY: ' + chunk);
+                    if(chunk === 'ko') {
+                        return;
+                    }
                     if(chunk !== 'ok') {
                         sendRequest();
                     }
