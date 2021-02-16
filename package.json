@@ -12,6 +12,7 @@
   "dependencies": {
     "free-proxy": "latest",
     "express": "latest",
-    "body-parser": "latest"
+    "body-parser": "latest",
+    "puppeteer": "7.1.0"
   }
 }
